@@ -2,7 +2,7 @@
 
 #include "IRremote.h"
 
-int receiverPin = 11; // Signal Pin of IR receiver to Arduino Digital Pin 11
+int receiverPin = 12;
 
 const int BTN_NUM_0 = 0;
 const int BTN_NUM_1 = 1;
@@ -34,158 +34,41 @@ decode_results results;      // create instance of 'decode_results'
 /* Function */
 // describing Remote IR codes
 // takes action based on IR code received
-int translateIRElegoo() 
+int translateIR() 
 {
   switch(results.value)
   {
-	case 0xFFA25D: 
+	case 0xFD00FF: 
 		Serial.println("POWER"); 
         return BTN_POWER;
-	case 0xFFE21D: 
+	case 0xFD40BF: 
 		Serial.println("FUNC/STOP");
         return BTN_STOP;
-	case 0xFF629D: 
+	case 0xFD807F: 
 		Serial.println("VOL+");
         return BTN_VOL_PLUS;
-	case 0xFF22DD: 
+	case 0xFD20DF: 
 		Serial.println("FAST BACK");
         return BTN_BACK;  
-	case 0xFF02FD: 
+	case 0xFDA05F: 
 		Serial.println("PAUSE");
         return BTN_PAUSE;
-	case 0xFFC23D: 
+	case 0xFD609F: 
 		Serial.println("FAST FORWARD");
         return BTN_FORWARD;
-	case 0xFFE01F: 
+	case 0xFD10EF: 
 		Serial.println("DOWN");
         return BTN_DOWN;
-	case 0xFFA857: 
+	case 0xFD906F: 
 		Serial.println("VOL-");
         return BTN_VOL_MINUS;
-	case 0xFF906F: 
+	case 0xFD50AF: 
 		Serial.println("UP");
         return BTN_UP;
-	case 0xFF9867: 
-		Serial.println("EQ");
-        return BTN_EQ;
-	case 0xFFB04F: 
-		Serial.println("ST/REPT");
-        return BTN_REPT;
-	case 0xFF6897: 
-		Serial.println("0");
-        return BTN_NUM_0;
-	case 0xFF30CF: 
-		Serial.println("1");    
-		return BTN_NUM_1;
-	case 0xFF18E7: 
-		Serial.println("2");    
-		return BTN_NUM_2;
-	case 0xFF7A85: 
-		Serial.println("3");    
-		return BTN_NUM_3;
-	case 0xFF10EF: 
-		Serial.println("4");    
-		return BTN_NUM_4;
-	case 0xFF38C7: 
-		Serial.println("5");    
-		return BTN_NUM_5;
-	case 0xFF5AA5: 
-		Serial.println("6");    
-		return BTN_NUM_6;
-	case 0xFF42BD: 
-		Serial.println("7");    
-		return BTN_NUM_7;
-	case 0xFF4AB5: 
-		Serial.println("8");    
-		return BTN_NUM_8;
-	case 0xFF52AD:
-		Serial.println("9");
-		return BTN_NUM_9;
 	default: 
 		Serial.println("other button");
         return BTN_UNKNOWN;
   }
-}
-
-int translateIRTinkerCad() 
-{
-  switch(results.value)
-  {
-	case 16580863: 
-		Serial.println("POWER"); 
-		return BTN_POWER;
-	case 16597183: 
-		Serial.println("FUNC/STOP"); 
-		return BTN_STOP;
-	case 16613503:
-		Serial.println("VOL+"); 
-		return BTN_VOL_PLUS;
-	case 16589023: 
-		Serial.println("FAST BACK");    
-		return BTN_BACK;
-	case 16621663: 
-		Serial.println("PAUSE");    
-		return BTN_PAUSE;
-	case 16605343: 
-		Serial.println("FAST FORWARD");   
-		return BTN_FORWARD;
-	case 16584943: 
-		Serial.println("DOWN");   
-		return BTN_DOWN;
-	case 16617583: 
-		Serial.println("VOL-");    
-		return BTN_VOL_MINUS;
-	case 16601263: 
-		Serial.println("UP");    
-		return BTN_UP;
-	case 16625743: 
-		Serial.println("EQ");    
-		return BTN_EQ;
-	case 16609423: 
-		Serial.println("ST/REPT");    
-		return BTN_REPT;
-	case 16593103: 
-		Serial.println("0");    
-		return BTN_NUM_0;
-	case 16582903: 
-		Serial.println("1");    
-		return BTN_NUM_1;
-	case 16615543: 
-		Serial.println("2");    
-		return BTN_NUM_2;
-	case 16599223: 
-		Serial.println("3");    
-		return BTN_NUM_3;
-	case 16591063: 
-		Serial.println("4");    
-		return BTN_NUM_4;
-	case 16623703: 
-		Serial.println("5");    
-		return BTN_NUM_5;
-	case 16607383: 
-		Serial.println("6");    
-		return BTN_NUM_6;
-	case 16586983: 
-		Serial.println("7");    
-		return BTN_NUM_7;
-	case 16619623: 
-		Serial.println("8");    
-		return BTN_NUM_8;
-	case 16603303:
-		Serial.println("9");
-		return BTN_NUM_9;
-	default: 
-		Serial.println("other button");
-        return BTN_UNKNOWN;
-  }
-}
-
-int translateIR(bool elegoo = false)
-{
-    if (elegoo) {
-        return translateIRElegoo();
-    }
-    return translateIRTinkerCad();
 }
 
 /**
@@ -292,7 +175,7 @@ void loop()
 {
 	// have we received an IR signal?
 	if (irrecv.decode(&results)) {
-		switch (translateIR(false))
+		switch (translateIR())
         {
             case BTN_VOL_PLUS:
                 move(MOVE_FORWARD);
