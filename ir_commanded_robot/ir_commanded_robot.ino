@@ -136,7 +136,7 @@ void initMotor(int activationPin, int pin1, int pin2)
 /**
  * Run a motor either clockwise or counter-clockwise
  */
-void runMotor(int pin1, int pin2 bool clockwise = true)
+void runMotor(int pin1, int pin2, bool clockwise = true)
 {
     if (clockwise) {
         // Run the motor clockwise
@@ -240,6 +240,7 @@ void stop()
 void setup()   
 {
     Serial.begin(9600);
+    Serial.println("Hello! I'm a robot.");
 
     // Start the receiver
     irrecv.enableIRIn(); 

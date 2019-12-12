@@ -75,17 +75,22 @@ int translateIR()
  * Use of 2 DC motor and a L293D
  */
 
-int speed = 100;
-
 // Motor 1 (left)
-const int PIN_ACTIVATE_1_2 = 8;
-const int PIN_INPUT_1 = 9;
-const int PIN_INPUT_2 = 10;
+const int PIN_ACTIVATE_1_2 = 9;
+const int PIN_INPUT_1 = 10;
+const int PIN_INPUT_2 = 11;
 
 // Motor 2 (right)
-const int PIN_ACTIVATE_3_4 = 2;
-const int PIN_INPUT_3 = 3;
-const int PIN_INPUT_4 = 4;
+const int PIN_ACTIVATE_3_4 = 3;
+const int PIN_INPUT_3 = 4;
+const int PIN_INPUT_4 = 5;
+
+// Directions
+const int MOVE_FORWARD = 0;
+const int MOVE_BACKWARD = 1;
+const int TURN_RIGHT = 2;
+const int TURN_LEFT = 3;
+const int STOP = 4;
 
 /**
  * Initialize the pins of a motor
@@ -95,6 +100,8 @@ void initMotor(int activationPin, int pin1, int pin2)
     pinMode(activationPin, OUTPUT);
     pinMode(pin1, OUTPUT);
     pinMode(pin2, OUTPUT);
+    // Enable the motor driver
+    digitalWrite(activationPin, HIGH); 
 }
 
 /**
@@ -122,81 +129,32 @@ void stopMotor(int pin1, int pin2)
     digitalWrite(pin2, LOW);
 }
 
-/**
- * Speed up motors
- */
-void speedUp()
-{
-    speed += 10;
-    if (speed > 255) {
-        speed = 255;
-    }
-    Serial.print("speed up to ");
-    Serial.println(speed);
-    analogWrite(PIN_ACTIVATE_1_2, speed);
-    analogWrite(PIN_ACTIVATE_3_4, speed);
-}
-
-/**
- * Speed down motors
- */
-void speedDown()
-{
-    speed -= 10;
-    if (speed < 0) {
-        speed = 0;
-    }
-    Serial.print("speed down to ");
-    Serial.println(speed);
-    analogWrite(PIN_ACTIVATE_1_2, speed);
-    analogWrite(PIN_ACTIVATE_3_4, speed);
-}
-
 // Robot control
 
-void moveForward()
+void move(int direction)
 {
-    Serial.print("Moving forward at ");
-    Serial.println(speed);
-    analogWrite(PIN_ACTIVATE_1_2, speed);
-    analogWrite(PIN_ACTIVATE_3_4, speed);
-    runMotor(PIN_INPUT_1, PIN_INPUT_2, true);
-    runMotor(PIN_INPUT_3, PIN_INPUT_4, true);
-}
-
-void moveBackward()
-{
-    Serial.print("Moving backward at ");
-    Serial.println(speed);
-    analogWrite(PIN_ACTIVATE_1_2, speed);
-    analogWrite(PIN_ACTIVATE_3_4, speed);
-    runMotor(PIN_INPUT_1, PIN_INPUT_2, false);
-    runMotor(PIN_INPUT_3, PIN_INPUT_4, false);
-}
-
-void turnRight()
-{
-    Serial.println("Turning right");
-    analogWrite(PIN_ACTIVATE_1_2, speed);
-    analogWrite(PIN_ACTIVATE_3_4, 0);
-    runMotor(PIN_INPUT_1, PIN_INPUT_2, false);
-    runMotor(PIN_INPUT_3, PIN_INPUT_4, false);
-}
-
-void turnLeft()
-{
-    Serial.println("Turning left");
-    analogWrite(PIN_ACTIVATE_1_2, 0);
-    analogWrite(PIN_ACTIVATE_3_4, speed);
-    runMotor(PIN_INPUT_1, PIN_INPUT_2, true);
-    runMotor(PIN_INPUT_3, PIN_INPUT_4, true);
-}
-
-void stop()
-{
-    Serial.println("Stop!");
-    stopMotor(PIN_INPUT_1, PIN_INPUT_2);
-    stopMotor(PIN_INPUT_3, PIN_INPUT_4);
+    switch (direction) {
+        case MOVE_FORWARD:
+            runMotor(PIN_INPUT_1, PIN_INPUT_2, false);
+            runMotor(PIN_INPUT_3, PIN_INPUT_4, true);
+            break;
+        case MOVE_BACKWARD:
+            runMotor(PIN_INPUT_1, PIN_INPUT_2, true);
+            runMotor(PIN_INPUT_3, PIN_INPUT_4, false);
+            break;
+        case TURN_RIGHT:
+            runMotor(PIN_INPUT_1, PIN_INPUT_2, false);
+            runMotor(PIN_INPUT_3, PIN_INPUT_4, false);
+            break;
+        case TURN_LEFT:
+            runMotor(PIN_INPUT_1, PIN_INPUT_2, true);
+            runMotor(PIN_INPUT_3, PIN_INPUT_4, true);
+            break;
+        case STOP:
+            stopMotor(PIN_INPUT_1, PIN_INPUT_2);
+            stopMotor(PIN_INPUT_3, PIN_INPUT_4);
+            break;
+    }
 }
 
 // Main functions
@@ -220,29 +178,24 @@ void loop()
 		switch (translateIR())
         {
             case BTN_VOL_PLUS:
-                moveForward();
+                move(MOVE_FORWARD);
                 break;
             case BTN_VOL_MINUS:
-                moveBackward();
+                move(MOVE_BACKWARD);
                 break;
             case BTN_FORWARD:
-                turnRight();
+                move(TURN_RIGHT);
                 break;
             case BTN_BACK:
-                turnLeft();
+                move(TURN_LEFT);
                 break;
             case BTN_PAUSE:
-                stop();
-                break;
-            case BTN_DOWN:
-                speedDown();
-                break;
-            case BTN_UP:
-                speedUp();
+                move(STOP);
                 break;
             default:
                 break;
         }
+        delay(500);
 		irrecv.resume(); // receive the next value
 	}  
 }
